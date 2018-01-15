@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:mvc="http://www.springframework.org/schema/mvc" xmlns:aop="http://www.springframework.org/schema/aop"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/context
+       http://www.springframework.org/schema/context/spring-context.xsd
+       http://www.springframework.org/schema/mvc
+       http://www.springframework.org/schema/mvc/spring-mvc.xsd http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd">
+
+    <!-- 开启Controller注解扫描 Action控制器 -->
+    <context:component-scan base-package="com.bootcrm.controller" />
+
+    <mvc:default-servlet-handler default-servlet-name="DispatcherServlet" />
+    <!--&lt;!&ndash;基于注解的映射器&ndash;&gt;-->
+    <!--<bean class="org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping"/>-->
+    <!--&lt;!&ndash; 基于注解的适配器(可选) &ndash;&gt;-->
+    <!--<bean class="org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter"/>-->
+
+    <!--自动注册映射器与适配器，并提供：读写JSON的支持（Jackson）-->
+    <mvc:annotation-driven  >
+        <mvc:message-converters register-defaults="true">
+            <!-- 配置@ResponseBody由fastjson解析 -->
+            <bean class="com.alibaba.fastjson.support.spring.FastJsonHttpMessageConverter">
+                <property name="supportedMediaTypes">
+                    <list>
+                        <value>text/html;charset=UTF-8</value>
+                        <value>application/json</value>
+                    </list>
+                </property>
+                <property name="features">
+                    <list>
+                        <value>WriteMapNullValue</value>
+                        <value>QuoteFieldNames</value>
+                    </list>
+                </property>
+            </bean>
+        </mvc:message-converters>
+    </mvc:annotation-driven>
+
+    <!-- jsp视图解析器(可选) -->
+    <bean id="jspViewResolver" class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+        <property name="prefix" value="/WEB-INF/jsp/"/>
+        <property name="suffix" value=".jsp"/>
+    </bean>
+
+    <!--添加Controller层的代理-->
+    <!--切面类-->
+    <bean id="controllerAOP" class="com.bootcrm.common.aop.ControllerAOP"/>
+    <!--aop配置-->
+    <aop:config>
+        <aop:aspect ref="controllerAOP">
+            <!--指定切入点表单式： 拦截哪些方法； 即为哪些类生成代理对象-->
+            <aop:pointcut id="target"
+                          expression="execution(public com.bootcrm.common.bean.ResultBean com.bootcrm.controller.*.*(..))" />
+            <!--execution(<修饰符模式>?<返回类型模式><方法名模式>(<参数模式>)<异常模式>?)-->
+            <aop:around method="handlerControllerMethod" pointcut-ref="target" />
+        </aop:aspect>
+    </aop:config>
+
+
+    <!-- 国际化操作拦截器 如果采用基于（请求/Session/Cookie）则必需配置 -->
+    <mvc:interceptors>
+        <bean class="org.springframework.web.servlet.i18n.LocaleChangeInterceptor"/>
+    </mvc:interceptors>
+    <bean id="messageSource" class="org.springframework.context.support.ResourceBundleMessageSource">
+        <!-- 国际化信息所在的文件名 -->
+        <property name="basename" value="msg" />
+        <!-- 如果在国际化资源文件中找不到对应代码的信息，就用这个代码作为名称  -->
+        <property name="useCodeAsDefaultMessage" value="true" />
+    </bean>
+    <!--基于Cookie的国际化实现-->
+    <bean id="localeResolver" class="org.springframework.web.servlet.i18n.CookieLocaleResolver" >
+        <property name="cookieName" value="lang"/>
+    </bean>
+    <!--&lt;!&ndash; 动态切换国际化 ,国际化放在session中 &ndash;&gt;-->
+    <!--<bean id="localeResolver" class="org.springframework.web.servlet.i18n.SessionLocaleResolver"></bean>-->
+</beans>

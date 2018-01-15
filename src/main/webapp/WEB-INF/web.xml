@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns="http://xmlns.jcp.org/xml/ns/javaee"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_3_1.xsd"
+         version="3.1">
+
+  <display-name>Archetype Created Web Application</display-name>
+
+    <!-- 配置spring 初始化配置-->
+    <context-param>
+        <param-name>contextConfigLocation</param-name>
+        <param-value>classpath:config/applicationContext.xml</param-value>
+    </context-param>
+    <!--log4j配置文件加载-->
+    <!--获取webapp根目录-->
+    <context-param>
+        <param-name>webAppRootKey</param-name>
+        <param-value>webApp.root</param-value>
+    </context-param>
+    <context-param>
+        <param-name>log4jConfig</param-name>
+        <param-value>classpath:log4j.properties</param-value>
+    </context-param>
+    <!--启动一个watchdog线程每1800秒扫描一下log4j配置文件的变化-->
+    <context-param>
+        <param-name>log4jRefreshInterval</param-name>
+        <param-value>1800000</param-value>
+    </context-param>
+
+  <!--  &lt;!&ndash; 配置监听器加载spring:监听web容器启动过程，之后启动spring的IOC容器（spring根上下文环境Context） &ndash;&gt;
+    &lt;!&ndash;父上下文容器中保存数据源、服务层、DAO层、事务的Bean&ndash;&gt;
+    <listener>
+        <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+    </listener>
+    &lt;!&ndash;spring log4j监听器&ndash;&gt;
+    <listener>
+        <listener-class>org.springframework.web.util.Log4jConfigListener</listener-class>
+    </listener>-->
+
+    <!--shiro相关配置-->
+    <!--shiro开始-->
+    <listener>
+        <listener-class>org.apache.shiro.web.env.EnvironmentLoaderListener</listener-class>
+    </listener>
+
+    <filter>
+        <filter-name>ShiroFilter</filter-name>
+        <filter-class>org.apache.shiro.web.servlet.ShiroFilter</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>ShiroFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+        <dispatcher>REQUEST</dispatcher>
+        <dispatcher>FORWARD</dispatcher>
+        <dispatcher>INCLUDE</dispatcher>
+        <dispatcher>ERROR</dispatcher>
+    </filter-mapping>
+    <!--shiro结束-->
+
+    <!--&lt;!&ndash;编码过滤器：专用于解决POST提交中文乱码问题&ndash;&gt;-->
+    <!--&lt;!&ndash;每次访问时，会经过filter过滤&ndash;&gt;-->
+    <!--<filter>-->
+        <!--<filter-name>characterEncodingFilter</filter-name>-->
+        <!--<filter-class>org.springframework.web.filter.CharacterEncodingFilter</filter-class>-->
+        <!--<init-param>-->
+            <!--<param-name>encoding</param-name>-->
+            <!--<param-value>utf-8</param-value>-->
+        <!--</init-param>-->
+    <!--</filter>-->
+    <!--<filter-mapping>-->
+        <!--<filter-name>characterEncodingFilter</filter-name>-->
+        <!--<url-pattern>/*</url-pattern>-->
+    <!--</filter-mapping>-->
+
+    <!--&lt;!&ndash;用户过滤器，记录用户信息&ndash;&gt;-->
+    <!--<filter>-->
+        <!--<filter-name>commonAuthority</filter-name>-->
+        <!--<filter-class>com.bootcrm.common.filter.AuthorityFilter</filter-class>-->
+    <!--</filter>-->
+    <!--<filter-mapping>-->
+        <!--<filter-name>commonAuthority</filter-name>-->
+        <!--<url-pattern>/*</url-pattern>-->
+    <!--</filter-mapping>-->
+    <!--核心springmvc核心控制器：初始化该servlet时，会建立自己的上下文环境Context，且以之前创建的context作为父context-->
+    <!--子上下文容器中保存Mvc相关的Action的Bean.-->
+  <!--<servlet>-->
+    <!--<servlet-name>DispatcherServlet</servlet-name>-->
+    <!--<servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>-->
+    <!--<init-param>-->
+      <!--<param-name>contextConfigLocation</param-name>-->
+      <!--<param-value>classpath:config/springMVC.xml</param-value>-->
+    <!--</init-param>-->
+  <!--</servlet>-->
+  <!--<servlet-mapping>-->
+    <!--<servlet-name>DispatcherServlet</servlet-name>-->
+    <!--<url-pattern>/</url-pattern>-->
+  <!--</servlet-mapping>-->
+
+
+  <welcome-file-list>
+    <welcome-file>index.jsp</welcome-file>
+  </welcome-file-list>
+</web-app>
